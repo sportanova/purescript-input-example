@@ -6,6 +6,7 @@ import Halogen
 import Halogen.Util (awaitBody, runHalogenAff)
 import Halogen.HTML.Properties.Indexed as PI
 import Halogen.HTML.Elements as E
+import Halogen.HTML.Indexed as HI
 import Data.Generic (class Generic, gCompare, gEq)
 import Control.Monad.Aff (Aff)
 import Halogen.HTML.Core (Prop, prop, propName, attrName)
@@ -13,6 +14,7 @@ import Halogen.HTML.Elements.Indexed (Leaf)
 import Halogen.HTML.Properties.Indexed (IProp, I)
 import Unsafe.Coerce (unsafeCoerce)
 import Data.Maybe (Maybe(..))
+import Control.Monad.Eff.JQuery as J
 
 inputx :: forall p i. Leaf (accept :: I,  autocapitalize :: I, autocomplete :: I, autocorrect :: I, autofocus :: I, checked :: I, disabled :: I, form :: I, formaction :: I, formenctype :: I, formmethod :: I, formnovalidate :: I, formtarget :: I, height :: I, list :: I, max :: I, min :: I, multiple :: I, onAbort :: I, onChange :: I, onError :: I, onInput :: I, onInvalid :: I, onLoad :: I, onSearch :: I, onSelect :: I, pattern :: I, placeholder :: I, readonly :: I, required :: I, size :: I, src :: I, step :: I, inputType :: I, value :: I, width :: I) p i
 inputx = unsafeCoerce E.input
@@ -51,18 +53,36 @@ ui = lifecycleComponent {
 } where
 
   render :: State -> ComponentHTML Query
-  render st = inputx
+  render st = HI.div_
     [
-      PI.name "example"
-    , PI.autocomplete false
-    , autocorrect false
-    , autocapitalize false
-    , PI.spellcheck false
-    , PI.inputType PI.InputText
+      HI.div_ [HI.text "autocorrect attribute not added"]
+    , inputx
+        [
+          PI.name "example"
+        , PI.autocomplete false
+        , autocorrect false
+        , autocapitalize false
+        , PI.spellcheck false
+        , PI.inputType PI.InputText
+        ]
+    , HI.div_ [HI.text "autocorrect attribute added through jquery"]
+    , inputx
+      [
+        PI.name "working-example"
+      , PI.id_ "working-example"
+      , PI.autocomplete false
+      , autocorrect false
+      , autocapitalize false
+      , PI.spellcheck false
+      , PI.inputType PI.InputText
+      ]
     ]
 
   eval :: Natural Query (ComponentDSL State Query (ExEff eff))
-  eval (Initialize next) = pure next
+  eval (Initialize next) = do
+    inputEl <- fromEff $ J.select ("#working-example")
+    x <- fromEff $ J.setAttr "autocorrect" "off" inputEl
+    pure next
   eval (Finalize next) = pure next
 
 
