@@ -1,0 +1,9 @@
+{
+  "name": "purescript-jquery-slider",
+  "version": "0.0.1",
+  "description": "PRACTICE Spanish + English",
+  "dependencies": {},
+  "devDependencies": {
+    "virtual-dom": "^2.1.1"
+  }
+}
